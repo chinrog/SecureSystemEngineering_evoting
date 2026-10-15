@@ -37,7 +37,7 @@ mod User_Types {
 
 //This gives information about the candidate.  name position, political party, and a candidate number that will be used to identify the candidate.  When Tallying votes, this will be
 //checked among all voters and used to tally votes.
-    pub struct candidate {
+    pub struct Candidate {
         pub candidate_name: String,
         pub office: Position,
         pub political_party: Political_Party,
