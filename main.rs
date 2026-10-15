@@ -26,30 +26,19 @@ fn mainmenu() -> u8 {
     println!("1. List Existing Elections");
     println!("2. Create Election");
     println!("3. Create Voter");
-    println!("4. View Audit Log");
-    println!("5. Exit Program");
-    println!("Enter your choice (1-5):");
+    println!("4. View system logs");
+    println!("5. view election logs");
+    println!("6. view user logs");
+    println!("7. Exit Program");
+    println!("Enter your choice (1-7):");
 
-    let menu_string = String::from("main");
+    let menu_string = String::from();
 
-    sanitize_menu_input(menu_string)
+    sanitize_menu_input()
 
 }
 
-fn logmenu(){
-    println!("========================================");
-    println!("       E-Voting App (admin portal_logging)");
-    println!("========================================");
-    println!("Please select an option:");
-    println!("1. view election logs");
-    println!("2. view user logs");
-    println!("3. Back to main menu");
-    println!("Enter your choice (1-3):");   
-    
-    let menu_string = String::from("log");
-}
-
-fn sanitize_menu_input(menu_string: String) -> u8 {
+fn sanitize_menu_input() -> u8 {
 /* This function is vitial.  By using escape characters or flooding the variable with more data than is expected, in other programming languages
 this would cause a buffer flow.  In rust and some of the more modern languages, the application can fail.  This function deals with the E in stride which
 prevents Escalation of privilege.  Using techniques such as Injection attacks, it's possible to bypass the user interface and gain console access to the
@@ -75,20 +64,14 @@ then
         continue;
     }
 
-    let (min, max) = match menu_string.as_str() {
-        "main" => (1, 5),
-        "log" => (1, 3),
-        _ => return 0,
-    };
-
     if input.is_empty() || !input.chars().all(|c| c.is_ascii_digit()) {
-        eprintln!("Error: Only numbers from {min}-{max} are accepted");
+        eprintln!("Error: Only numbers from 1-7 are accepted");
         continue;
     }
 
     match input.parse::<u8>() {
-        Ok(num) if (min..=max).contains(&num) => return num,
-        _ => eprintln!("Error: Invalid choice. Please enter a number between {min} and {max}."),
+        Ok(num) if (1..=7).contains(&num) => return num,
+        _ => eprintln!("Error: Invalid choice. Please enter a number between 1 and 7."),
     }
     input;
 }
@@ -125,11 +108,21 @@ fn main() {
             create_voter();
         }
         4 => {
-            println!("Audit menu...");
+            println!("Fetching System logs...");
             // Call a function to create a new voter
             logmenu();
         }
         5 => {
+            println!("Fetching Election logs...");
+            // Call a function to create a new voter
+            logmenu();
+        }
+        6 => {
+            println!("Fetching User logs menu...");
+            // Call a function to create a new voter
+            logmenu();
+        }
+        7 => {
             println!("Exiting the program...");
             // Exit the program
             std::process::exit(0);
