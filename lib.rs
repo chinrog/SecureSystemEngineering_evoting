@@ -11,7 +11,7 @@ enum Position {
 enum Election_Type {
     DemocraticPrimary,
     RepublicanPrimary,
-    General
+    General,
 }
 #[derive(Debug, Copy)] //There may be a need to copy the value of a political party later.
 enum Political_Party {
