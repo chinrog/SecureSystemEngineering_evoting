@@ -1,4 +1,5 @@
 //This new position type give the option for one of 3 options.
+#[derive(debug,Copy)] //There may be a need to extract the value of the position later
 enum Position {
     President,
     VicePresident,
@@ -6,12 +7,13 @@ enum Position {
 }
 
 //This election type gives us the option to possibly create a Democratic Primary, a Republican Primary, and a General Election type.
+#[derive(Debug,Copy)] //There may be a need to extract the value of the election type later
 enum Election_Type {
     DemocraticPrimary,
     RepublicanPrimary,
     General
 }
-
+#[derive(Debug, Copy)] //There may be a need to copy the value of a political party later.
 enum Political_Party {
     Democrat,
     Republican,
@@ -43,7 +45,9 @@ mod User_Types {
     }
 }
 
-//
+//Upon starting an election, wanted to give the option for multiple concurrent elections as well as different types (Democratic/Republican Primary as well as the General).
+//the Vec<Candidate. option is to allow for multiple types to be added in the main. The electionNum is a way to reference the specific election.  Enums are used to control 
+//input.  Further sanitization will be used upon user input.
 pub mod ElectMod {
     use super::Election_Type;
     use super::User_Types;
