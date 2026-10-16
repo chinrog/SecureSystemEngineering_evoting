@@ -30,6 +30,7 @@ mod user_types {
 
 //Create a voter structure taking in the full name (need to sanitize input to deal with escape characters), date of birth (per the project
 //specification, phone (to allow for OTP), and has_voted (need to query this value prior to accepting vote, should be initialized to false).
+    #[allow(dead_code)]    
     pub struct Voter {
         pub voter_full_name: String,
         pub date_of_birth: NaiveDate,
@@ -39,6 +40,7 @@ mod user_types {
 
 //This gives information about the candidate.  name position, political party, and a candidate number that will be used to identify the candidate.  When Tallying votes, this will be
 //checked among all voters and used to tally votes.
+    #[allow(dead_code)]
     pub struct Candidate {
         pub candidate_name: String,
         pub office: Position,
@@ -100,9 +102,9 @@ pub mod elect_mod {
                 println!("Election Number: {}", election.election_num);
                 println!("Election Type: {:?}", election.election_type);
                 println!("Election Open: {}", election.elect_open);
-                println!("Candidates for President: {:?}", election.president);
-                println!("Candidates for Vice President: {:?}", election.vicepresident);
-                println!("Candidates for Secretary: {:?}", election.secretary);
+                //println!("Candidates for President: {:?}", election.president);
+                //println!("Candidates for Vice President: {:?}", election.vicepresident);
+                //println!("Candidates for Secretary: {:?}", election.secretary);
                 println!("----------------------------------------");
             }
         }
