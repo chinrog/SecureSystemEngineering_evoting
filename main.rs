@@ -12,11 +12,13 @@ Election Admins must be able to:
     – Check that this voter does not already exist.
     – Assign the voter a unique numeric PIN upon registration. This PIN is provided to the voter and is required to 
     authenticate before casting a vote.
-• View an audit log of all election lifecycle events and voter registrations, including timestamps. */
+• View an audit log of all election lifecycle events and voter registrations, including timestamps. 
+============================================================================================*/
 
 use std::io;
-use crate::elect_mod::{create_election, list_existing_elections, Election};
-use crate::user_types::{create_candidate, create_voter, Candidate, Voter};
+mod lib;
+//use lib::elect_mod::{create_election, list_existing_elections, Election};
+//use lib::user_types::{create_candidate, create_voter, Candidate, Voter};
 
 fn mainmenu() -> u8 {
     println!("========================================");
@@ -32,7 +34,7 @@ fn mainmenu() -> u8 {
     println!("7. Exit Program");
     println!("Enter your choice (1-7):");
 
-    let menu_string = String::from();
+    //let menu_string = String::from();
 
     sanitize_menu_input()
 
@@ -56,43 +58,47 @@ The match statement checks if the input is a valid number within the specified r
 then 
 */
     let mut input = String::new();
+    
     io::stdin().read_line(&mut input).expect("Failed to read input");
     let input = input.trim();
 
     if input.chars().any(|c| c.is_control()) {
         eprintln!("Error: Control character/escape character detected!");
-        continue;
+        return 0; // Return 0 to indicate an error
     }
 
     if input.is_empty() || !input.chars().all(|c| c.is_ascii_digit()) {
         eprintln!("Error: Only numbers from 1-7 are accepted");
-        continue;
+        return 0; // Return 0 to indicate an error
     }
 
     match input.parse::<u8>() {
         Ok(num) if (1..=7).contains(&num) => return num,
         _ => eprintln!("Error: Invalid choice. Please enter a number between 1 and 7."),
     }
-    input;
+    let mut input_u8 = input.parse::<u8>().unwrap_or(0);
+
+    return input_u8;
 }
 
 fn main() {
 //this function takes place post authentication
 //call menu function
-    let choice = mainmenu();
+    let mut choice = mainmenu();
+
+    if choice == 0 {
+        // If the input was invalid, prompt the user again
+        choice = sanitize_menu_input();
+    }
 
     println!("You selected option: {}", choice);
 
-//condition to catch logging menu
-    if choice == 4 {
-        let choice = logmenu();
-    }
 //Option one:  check existing elections
     match choice {
         1 => {
             println!("Listing existing elections...");
             // Call a function to list existing elections
-            list_existing_elections();
+            //list_existing_elections();
         }
     //Search DB for elections that were already created.
     //If no elections, print "no elections, please choose option 2"
@@ -100,27 +106,27 @@ fn main() {
         2 => {
             println!("Creating a new election...");
             // Call a function to create a new election
-            create_election();
+            //create_election();
         }
         3 => {
             println!("Create a new voter...");
             // Call a function to create a new voter
-            create_voter();
+            //create_voter();
         }
         4 => {
             println!("Fetching System logs...");
             // Call a function to create a new voter
-            logmenu();
+            //logmenu();
         }
         5 => {
             println!("Fetching Election logs...");
             // Call a function to create a new voter
-            logmenu();
+            //logmenu();
         }
         6 => {
             println!("Fetching User logs menu...");
             // Call a function to create a new voter
-            logmenu();
+            //logmenu();
         }
         7 => {
             println!("Exiting the program...");
