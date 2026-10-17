@@ -17,7 +17,7 @@ Election Admins must be able to:
 
 //use std::io;
 mod lib;
-use lib::sanitize_menu_input;
+use lib::sanitize_u8;
 //use lib::elect_mod::{create_election, list_existing_elections, Election};
 //use lib::user_types::{create_candidate, create_voter, Candidate, Voter};
 
@@ -38,7 +38,7 @@ fn mainmenu() -> u8 {
     println!("========================================");
     //let menu_string = String::from();
 
-    sanitize_u8()
+    sanitize_u8(7)
 
 }
 
@@ -49,7 +49,7 @@ fn main() {
 
     if choice == 0 {
         // If the input was invalid, prompt the user again
-        choice = sanitize_u8();
+        choice = sanitize_u8(7);
     }
 
     println!("You selected option: {}", choice);
