@@ -27,6 +27,8 @@ pub enum PoliticalParty {
 mod user_types {
 //this is an external crate that allows us to take in objects similar to date.  format: YYYY-MM-DD
     use chrono::NaiveDate;
+use crate::{sanitize_name, sanitize_u8, specify_political_office, specify_political_party};
+
 //Take in this object type from the outer scope.
     use super::{PoliticalOffice,PoliticalParty};
 
@@ -50,10 +52,18 @@ mod user_types {
         pub candidate_Num: u8,
     }
 
-    pub fn create_candidate(name: String, office: PoliticalOffice, party: PoliticalParty, candidate_num: u8) -> Candidate {
-        
+    pub fn create_candidate() -> Candidate {
+        use::super::sanitize_u8;
         println!("Enter the name of the candidate...");
-        
+        let name = sanitize_name();
+        println!("Enter the political office of the candidate...");
+        let mut office = specify_political_office();
+
+        println!("Enter the political party of the candidate...");
+        let mut PoliticalParty = specify_political_party();
+
+        println!("Enter the name of the candidate...");
+
         Candidate {
             candidate_name: name,
             office: office,
@@ -63,10 +73,13 @@ mod user_types {
     }
 
     pub fn create_voter(name: String, dob: NaiveDate, phone: String) -> Voter {
+        println!("Enter the name of the candidate...");
+        let name = sanitize_name();
+
         Voter {
             voter_full_name: name,
             date_of_birth: dob,
-            phone,
+            phone: phone,
             has_voted: false,
         }
     }
@@ -137,8 +150,7 @@ pub mod program_logging{
     //create a function to view logs from the database.
 }
 
-pub fn sanitize_u8() -> u8 {
-/* This function is vitial.  By using escape characters or flooding the variable with more data than is expected, in other programming languages
+/* These functions are vitial.  By using escape characters or flooding the variable with more data than is expected, in other programming languages
 this would cause a buffer flow.  In rust and some of the more modern languages, the application can fail.  This function deals with the E in stride which
 prevents Escalation of privilege.  Using techniques such as Injection attacks, it's possible to bypass the user interface and gain console access to the
 system running the app where they can run commands.  If a data type is expecting a smaller value than what the threat actor provided then the threat 
@@ -153,6 +165,8 @@ The match statement checks if the input is a valid number within the specified r
  is accepted, preventing potential security vulnerabilities related to invalid or malicious input.
  
 */
+pub fn sanitize_u8(limiter: u8) -> u8 {
+
     let mut input = String::new();
     
     io::stdin().read_line(&mut input).expect("Failed to read input");
@@ -164,7 +178,7 @@ The match statement checks if the input is a valid number within the specified r
     }
 
     if input.is_empty() || !input.chars().all(|c| c.is_ascii_digit()) {
-        eprintln!("Error: Only numbers from 1-7 are accepted");
+        eprintln!("Error: Only numbers from 1-{} are accepted", limiter);
         return 0; // Return 0 to indicate an error
     }
 
@@ -178,9 +192,7 @@ The match statement checks if the input is a valid number within the specified r
 }
 
 pub fn sanitize_name() -> String {
-/* 
- 
-*/
+
     let mut input = String::new();
     let error: String = String::from("bad_input");
     
@@ -192,22 +204,59 @@ pub fn sanitize_name() -> String {
         return error; // Return "bad_input" to indicate an error
     }
 
-    if input.is_empty() || !input.chars().all(|c| c.is_ascii_alphabetic()) {
-        eprintln!("Error: Only strings in the format <Firstname Lastname> are accepted");
-        return error; // Return "bad_input" to indicate an error
-    }
+    let parts: Vec<&str> = input.split_whitespace().collect();  // Require exactly two name parts, containing letters only.
 
-    match input.trim() {
-        s if !s.is_empty()
-            && s.split_whitespace().count() == 2
-            && s.chars().all(|c| c.is_alphabetic() || c.is_whitespace()) =>
+    if parts.len() != 2 || !parts.iter().all(|part| {part.chars().all(|c| c.is_alphabetic())})
         {
-            return s.to_string();
-        }
-    _ => eprintln!("Error: Invalid name. Please enter a first and last name using letters only."),
+            eprintln!("Error: Enter a first and last name using letters only.");
+            return String::from("bad_input");
+         }
+
+    // Return the validated name.
+    return input.to_string();
+}
+
+pub fn specify_political_office() -> PoliticalOffice {
+    println!("Please select an option:");
+    println!("1. President");
+    println!("2. Vice President");
+    println!("3. Secretary");
+    println!("========================================");
+    println!("Enter your choice (1-3):");
+    println!("========================================");
+    let choice = sanitize_u8(3);
+    if choice == 0 {
+        // If the input was invalid, prompt the user again
+        println!("An invalid entry was submitted. Enter your choice (1-3):");
+        choice = sanitize_u8(3);
     }
 
-    let mut input_name: String = input.parse::<String>().unwrap_or(" ");
+    match choice.trim(){
+        "1" => return Position::President,
+        "2" => return Position::VicePresident,
+        "3" => return Position::Secretary,
+        _ => println!("Invalid choice. Enter 1, 2, or 3"),
+    }
+}
 
-    return input_name;
+pub fn specify_political_party() -> PoliticalParty{
+    println!("Please select an option:");
+    println!("1. Democrat");
+    println!("2. Republican");
+    println!("========================================");
+    println!("Enter your choice (1-2):");
+    println!("========================================");
+    let choice = sanitize_u8(2);
+    if choice == 0 {
+        // If the input was invalid, prompt the user again
+        println!("An invalid entry was submitted. Enter your choice (1-2):");
+        choice = sanitize_u8(2);
+    }
+
+    match choice.trim(){
+        "1" => return PoliticalParty::Democrat,
+        "2" => return PoliticalParty::Republican,
+        _ => println!("Invalid choice. Enter 1, or 2"),
+    }
+
 }
