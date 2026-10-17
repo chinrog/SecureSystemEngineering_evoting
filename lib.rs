@@ -1,7 +1,9 @@
+use std::io;
+
 //This new position type give the option for one of 3 options.
 #[derive(Debug,Copy,Clone)] //There may be a need to extract the value of the position later
 #[allow(dead_code)] // Positions are used when candidates are populated.
-enum Position {
+pub enum PoliticalOffice {
     President,
     VicePresident,
     Secretary,
@@ -16,7 +18,7 @@ pub enum ElectionType {
 }
 #[derive(Debug, Copy, Clone)] //There may be a need to copy the value of a political party later.
 #[allow(dead_code)] //Variants are used when candidates are populated.
-enum PoliticalParty {
+pub enum PoliticalParty {
     Democrat,
     Republican,
 }
@@ -26,7 +28,7 @@ mod user_types {
 //this is an external crate that allows us to take in objects similar to date.  format: YYYY-MM-DD
     use chrono::NaiveDate;
 //Take in this object type from the outer scope.
-    use super::{Position,PoliticalParty};
+    use super::{PoliticalOffice,PoliticalParty};
 
 //Create a voter structure taking in the full name (need to sanitize input to deal with escape characters), date of birth (per the project
 //specification, phone (to allow for OTP), and has_voted (need to query this value prior to accepting vote, should be initialized to false).
@@ -43,15 +45,18 @@ mod user_types {
     #[allow(dead_code)]
     pub struct Candidate {
         pub candidate_name: String,
-        pub office: Position,
+        pub office: PoliticalOffice,
         pub political_party: PoliticalParty,
         pub candidate_Num: u8,
     }
 
-    pub fn create_candidate(name: String, office: Position, party: PoliticalParty, candidate_num: u8) -> Candidate {
+    pub fn create_candidate(name: String, office: PoliticalOffice, party: PoliticalParty, candidate_num: u8) -> Candidate {
+        
+        println!("Enter the name of the candidate...");
+        
         Candidate {
             candidate_name: name,
-            office,
+            office: office,
             political_party: party,
             candidate_Num: candidate_num,
         }
@@ -84,6 +89,16 @@ pub mod elect_mod {
     }
 
     pub fn create_election(election_type: ElectionType, election_num: u8) -> Election {
+        println!("Each new election should support at least 3 customizable positions for"); 
+        println!("election (e.g. President, Vice President, Secretary)");
+        println!("Each position should have at least 2 possible candidates for election");
+        println!("Each candidate must have fields for a name and political party");
+    
+        println!("Creating a new election...");
+        println!("Creating a new election...");
+
+
+
         Election {
             election_type,
             president: Vec::new(),
@@ -120,4 +135,79 @@ pub mod program_logging{
     //create and initialize the sqlite database for logging.
     //create a function to log events to the database.
     //create a function to view logs from the database.
+}
+
+pub fn sanitize_u8() -> u8 {
+/* This function is vitial.  By using escape characters or flooding the variable with more data than is expected, in other programming languages
+this would cause a buffer flow.  In rust and some of the more modern languages, the application can fail.  This function deals with the E in stride which
+prevents Escalation of privilege.  Using techniques such as Injection attacks, it's possible to bypass the user interface and gain console access to the
+system running the app where they can run commands.  If a data type is expecting a smaller value than what the threat actor provided then the threat 
+actor could perform a buffer overflow attack and write to adjacent memory.  Specifically, the line: 
+
+let mut input = String::new();
+
+creates an empty string that fills up with additional input as needed. The below line 151 deal with detecting control characters and escape 
+characters. If the input is empty or not a number, the user is prompted to enter a number between the min and max values.  
+The match statement checks if the input is a valid number within the specified range.  If it is, the function returns that number.  If not,
+ an error message is displayed, and the loop continues until valid input is received.  This function ensures that only valid numeric input 
+ is accepted, preventing potential security vulnerabilities related to invalid or malicious input.
+ 
+*/
+    let mut input = String::new();
+    
+    io::stdin().read_line(&mut input).expect("Failed to read input");
+    let input = input.trim();
+
+    if input.chars().any(|c| c.is_control()) {
+        eprintln!("Error: Control character/escape character detected!");
+        return 0; // Return 0 to indicate an error
+    }
+
+    if input.is_empty() || !input.chars().all(|c| c.is_ascii_digit()) {
+        eprintln!("Error: Only numbers from 1-7 are accepted");
+        return 0; // Return 0 to indicate an error
+    }
+
+    match input.parse::<u8>() {
+        Ok(num) if (1..=7).contains(&num) => return num,
+        _ => eprintln!("Error: Invalid choice. Please enter a number between 1 and 7."),
+    }
+    let mut input_u8 = input.parse::<u8>().unwrap_or(0);
+
+    return input_u8;
+}
+
+pub fn sanitize_name() -> String {
+/* 
+ 
+*/
+    let mut input = String::new();
+    let error: String = String::from("bad_input");
+    
+    io::stdin().read_line(&mut input).expect("Failed to read input");
+    let input = input.trim();
+
+    if input.chars().any(|c| c.is_control()) {
+        println!("Error: Control character/escape character detected!");
+        return error; // Return "bad_input" to indicate an error
+    }
+
+    if input.is_empty() || !input.chars().all(|c| c.is_ascii_alphabetic()) {
+        eprintln!("Error: Only strings in the format <Firstname Lastname> are accepted");
+        return error; // Return "bad_input" to indicate an error
+    }
+
+    match input.trim() {
+        s if !s.is_empty()
+            && s.split_whitespace().count() == 2
+            && s.chars().all(|c| c.is_alphabetic() || c.is_whitespace()) =>
+        {
+            return s.to_string();
+        }
+    _ => eprintln!("Error: Invalid name. Please enter a first and last name using letters only."),
+    }
+
+    let mut input_name: String = input.parse::<String>().unwrap_or(" ");
+
+    return input_name;
 }
