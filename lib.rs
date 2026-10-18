@@ -2,13 +2,13 @@
 //This user type mod contains the types of "users" that we will be dealing with.
 mod user_types {
 
-use super::system::sanitize_name;
+    use super::system::sanitize_name;
 //this is an external crate that allows us to take in objects similar to date.  format: YYYY-MM-DD
     use chrono::NaiveDate;
     use super::elect_mod::*;
     
 //Create a voter structure taking in the full name (need to sanitize input to deal with escape characters), date of birth (per the project
-//specification, phone (to allow for OTP), and has_voted (need to query this value prior to accepting vote, should be initialized to false).
+//specification), phone (to allow for OTP), and has_voted (need to query this value prior to accepting vote, should be initialized to false).
     #[allow(dead_code)]    
     pub struct Voter {
         pub voter_full_name: String,
@@ -86,11 +86,16 @@ use super::system::sanitize_name;
 //the Vec<Candidate. option is to allow for multiple types to be added in the main. The electionNum is a way to reference the specific election.  Enums are used to control 
 //input.  Further sanitization will be used upon user input.
 pub mod elect_mod {
-    use super::user_types::Candidate;
+    use super::user_types::create_candidate;
+
+use super::system::sanitize_u8;
+
+use super::user_types::Candidate;
 
     pub enum PoliticalParty {
         Democrat,
         Republican,
+        Independent,
         ppnotSpecified,
     }
     pub enum PoliticalOffice {
@@ -113,25 +118,56 @@ pub mod elect_mod {
         pub president: Vec<Candidate>,
         pub vicepresident: Vec<Candidate>,
         pub secretary: Vec<Candidate>,
-        pub election_num: u32,
+        pub election_num: String,
         pub elect_open: bool,
     }
 
-    pub fn create_election(election_type: ElectionType, election_num: u32) -> Election {
-        println!("Each new election should support at least 3 customizable positions for"); 
-        println!("election (e.g. President, Vice President, Secretary)");
+    pub fn create_election() -> Election {
+        use super::elect_mod::*;
+        use super::system::generate_numeric_string;
+        let mut president: Vec<Candidate> = Vec::new();
+        let mut vicepresident: Vec<Candidate> = Vec::new();
+        let mut secretary: Vec<Candidate> = Vec::new();
+
+        println!("Each new election should support at least 3 customizable positions for the election (e.g. President,"); 
+        println!("Vice President, Secretary).");      
         println!("Each position should have at least 2 possible candidates for election");
         println!("Each candidate must have fields for a name and political party");
-    
-        println!("Creating a new election...");
-        println!("Creating a new election...");
+        println!("How many tickets are running in the election (maximum number is 3).");
+        let mut input = sanitize_u8(3);
+        
+        for i in 1..input{
+            println!("Let's customize the {}, ticket.", i);
+            for j  in 1..=3 {
+                println!("Enter the Presidental candidate for this ticketJ:");
+                let mut candidate: Candidate = create_candidate();
+                president.push(candidate);
+
+                println!("Enter the Vice Presidential candidate for this ticket:");
+                let mut candidate: Candidate = create_candidate();
+                vicepresident.push(candidate);
+                
+                println!("Enter the Secretarial candiate for this ticket:");
+                let mut candidate: Candidate = create_candidate();
+                secretary.push(candidate);
+            }
+        }
+
+        println!("What type of election is this?");
+        let mut elect_input: ElectionType = specify_election_type();
+
+        println!("Generating election number...");
+        let electnum = generate_numeric_string();
+        
+        println!("Is this election open?");
+        
 
         Election {
-            election_type,
-            president: Vec::new(),
-            vicepresident: Vec::new(),
-            secretary: Vec::new(),
-            election_num,
+            election_type: elect_input,
+            president: president,
+            vicepresident: vicepresident,
+            secretary: secretary,
+            election_num: electnum,
             elect_open: false,
         }
     }
@@ -152,6 +188,8 @@ pub mod elect_mod {
             }
         }
     }
+
+
 
     pub fn specify_political_office() -> PoliticalOffice {
         use super::system::sanitize_u8;
@@ -180,6 +218,33 @@ pub mod elect_mod {
         }
     }
 
+    pub fn specify_election_type() -> ElectionType {
+        use super::system::sanitize_u8;
+        use super::elect_mod::ElectionType::*;
+        println!("Please select an option:");
+        println!("1. Democratic Primary");
+        println!("2. Republican Primary");
+        println!("3. General Election");
+        println!("========================================");
+        println!("Enter your choice (1-3):");
+        println!("========================================");
+    
+        let mut choice = sanitize_u8(3);
+        
+        if choice == 0 {
+            // If the input was invalid, prompt the user again
+            println!("An invalid entry was submitted. Enter your choice (1-3):");
+            choice = sanitize_u8(3);
+        }
+
+        match choice {
+            1 => return ElectionType::DemocraticPrimary,
+            2 => return ElectionType::RepublicanPrimary,
+            3 => return ElectionType::General,
+            _ => {println!("Invalid choice. Enter 1, 2, or 3"); return etnotSpecified},
+        }
+    }
+
     pub fn specify_political_party() -> PoliticalParty{
         use super::elect_mod::PoliticalParty::*;
         use super::system::sanitize_u8;
@@ -187,11 +252,12 @@ pub mod elect_mod {
         println!("Please select an option:");
         println!("1. Democrat");
         println!("2. Republican");
+        println!("3. Independent");
         println!("========================================");
-        println!("Enter your choice (1-2):");
+        println!("Enter your choice (1-3):");
         println!("========================================");
 
-        let mut choice = sanitize_u8(2);
+        let mut choice = sanitize_u8(3);
 
         if choice == 0 {
             // If the input was invalid, prompt the user again
@@ -202,7 +268,8 @@ pub mod elect_mod {
         match choice{
             1 => return PoliticalParty::Democrat,
             2 => return PoliticalParty::Republican,
-            _ => {println!("Invalid choice. Enter 1, or 2"); return ppnotSpecified},
+            3 => return PoliticalParty::Independent,
+            _ => {println!("Invalid choice. Enter 1, or 3"); return ppnotSpecified},
         }
     }
 }
@@ -255,8 +322,8 @@ pub mod system{
         }
 
         match input.parse::<u8>() {
-            Ok(num) if (1..=7).contains(&num) => return num,
-            _ => eprintln!("Error: Invalid choice. Please enter a number between 1 and 7."),
+            Ok(num) if (1..=limiter).contains(&num) => return num,
+            _ => eprintln!("Error: Invalid choice. Please enter a number between 1 and {}.", limiter),
         }
         let mut input_u8 = input.parse::<u8>().unwrap_or(0);
 
