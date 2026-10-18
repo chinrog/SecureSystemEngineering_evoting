@@ -408,4 +408,10 @@ pub mod system{
         //create voter table
         //create election table
     }
+
+    pub fn send_sms_2_voter(phone: &str, vid: u32){
+        match send_sms(&phone, "Hello, here is your voterID: {}",vid) {
+        Ok(()) => println!("SMS request completed."),
+        Err(error) => eprintln!("Error sending SMS: {error}"),
+        }
 }
