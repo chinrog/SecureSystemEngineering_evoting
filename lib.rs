@@ -1,6 +1,6 @@
 
 //This user type mod contains the types of "users" that we will be dealing with.
-mod user_types {
+pub mod user_types {
 
     use super::system::sanitize_name;
 //this is an external crate that allows us to take in objects similar to date.  format: YYYY-MM-DD
@@ -394,8 +394,8 @@ pub mod system{
             return error; // Return "bad_input" to indicate an error
         }
 
-        if input.len() != 7 || !input.chars().all(|c| c.is_ascii_digit()) {
-            eprintln!("Error: Enter exactly 7 digits.");
+        if input.len() != 10 || !input.chars().all(|c| c.is_ascii_digit()) {
+            eprintln!("Error: Enter exactly 10 digits.");
             return String::from("bad_input");
         }
 
@@ -403,4 +403,9 @@ pub mod system{
         return input.to_string();
     }
 
+    pub fn initDB(){
+        //create candidate table
+        //create voter table
+        //create election table
+    }
 }
