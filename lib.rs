@@ -2,7 +2,7 @@
 //This user type mod contains the types of "users" that we will be dealing with.
 mod user_types {
 
-    use super::system::sanitize_name;
+use super::system::sanitize_name;
 //this is an external crate that allows us to take in objects similar to date.  format: YYYY-MM-DD
     use chrono::NaiveDate;
     use super::elect_mod::*;
@@ -52,9 +52,10 @@ mod user_types {
         }
     }
 
-    pub fn create_voter(name: String, dob: NaiveDate, phone: String) -> Voter {
+    pub fn create_voter() -> Voter {
+        use chrono::NaiveDate;
         use super::user_types::Voter;
-        use super::system::generate_numeric_string;
+        use super::system::{generate_numeric_string,sanitize_strnum,set_date};
 
         println!("Enter the name of the candidate...");
         let name = sanitize_name();
@@ -62,7 +63,14 @@ mod user_types {
         println!("generating VID");
         let vuid: String = generate_numeric_string();
 
+        println!("Enter the voter's phone number");
+        let mut phone: String = sanitize_strnum();
+        if phone == "bad_input"{
+            phone = sanitize_strnum();
+        }
 
+        println!("As a requirement, we need all voters to specify their birthdays");
+        let mut dob: NaiveDate = set_date();
 
         Voter {
             voter_full_name: name,
@@ -292,7 +300,7 @@ pub mod system{
     pub fn set_date() -> NaiveDate {
         use std::io;
 
-        println!("Enter the date in the format YYYY-MM-DD:");
+        println!("Please be sure to enter the date in the format YYYY-MM-DD:");
         let mut input = String::new();
         io::stdin().read_line(&mut input).expect("Failed to read input");
         let input = input.trim();
@@ -319,15 +327,13 @@ pub mod system{
             return error; // Return "bad_input" to indicate an error
         }
 
-        let parts: Vec<&str> = input.split_whitespace().collect();  // Require exactly two name parts, containing letters only.
-
-        if parts.len() != 2 || !parts.iter().all(|part| {part.chars().all(|c| c.is_alphabetic())})
-            {
-                eprintln!("Error: Enter a first and last name using letters only.");
-                return String::from("bad_input");
-            }
+        if input.len() != 7 || !input.chars().all(|c| c.is_ascii_digit()) {
+            eprintln!("Error: Enter exactly 7 digits.");
+            return String::from("bad_input");
+        }
 
         // Return the validated name.
         return input.to_string();
     }
+
 }
