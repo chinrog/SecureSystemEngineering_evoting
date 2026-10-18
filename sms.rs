@@ -7,7 +7,7 @@ fn send_sms(
     phone_numbers: &[&str],
     message_text: &str,
 ) -> Result<(), Box<dyn Error>> {
-    let api_key = env::var("md-H8dF-OX-9Nk67OUOTSUMyg")?;
+    let api_key = env::var("MAILCHIMP_TRANSACTIONAL_API_KEY")?;
     let sender_number = env::var("19172839315")?;
 
     let client = Client::new();
