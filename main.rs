@@ -17,7 +17,7 @@ Election Admins must be able to:
 
 //use std::io;
 mod lib;
-use lib::sanitize_u8;
+use lib::system::sanitize_u8;
 //use lib::elect_mod::{create_election, list_existing_elections, Election};
 //use lib::user_types::{create_candidate, create_voter, Candidate, Voter};
 
