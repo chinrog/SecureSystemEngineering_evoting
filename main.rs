@@ -17,7 +17,9 @@ Election Admins must be able to:
 
 //use std::io;
 mod lib;
-use lib::system::sanitize_u8;
+use lib::system::*;
+use lib::elect_mod::*;
+use lib::user_types::*;
 //use lib::elect_mod::{create_election, list_existing_elections, Election};
 //use lib::user_types::{create_candidate, create_voter, Candidate, Voter};
 
@@ -67,12 +69,12 @@ fn main() {
         2 => {
             println!("Creating a new election...");
             // Call a function to create a new election
-            //create_election();
+            let mut sec_elect = create_election();
         }
         3 => {
             println!("Create a new voter...");
             // Call a function to create a new voter
-            //create_voter();
+            let mut sec_vote: Voter = create_voter();
         }
         4 => {
             println!("Fetching System logs...");
