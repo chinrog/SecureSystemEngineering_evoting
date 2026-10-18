@@ -8,7 +8,7 @@ fn send_sms(
     message_text: &str,
 ) -> Result<(), Box<dyn Error>> {
     let api_key = env::var("MAILCHIMP_TRANSACTIONAL_API_KEY")?;
-    let sender_number = env::var("19172839315")?;
+    let sender_number = env::var("MAILCHIMP_SMS_SENDER")?;
 
     let client = Client::new();
 
