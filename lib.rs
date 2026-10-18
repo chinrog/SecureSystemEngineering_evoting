@@ -55,11 +55,14 @@ mod user_types {
     pub fn create_voter(name: String, dob: NaiveDate, phone: String) -> Voter {
         use super::user_types::Voter;
         use super::system::generate_numeric_string;
+
         println!("Enter the name of the candidate...");
         let name = sanitize_name();
 
         println!("generating VID");
         let vuid: String = generate_numeric_string();
+
+
 
         Voter {
             voter_full_name: name,
@@ -301,5 +304,30 @@ pub mod system{
                 set_date() // loop until correct date is inserted.
             }
         }
+    }
+
+    pub fn sanitize_strnum() -> String {
+
+        let mut input = String::new();
+        let error: String = String::from("bad_input");
+        
+        io::stdin().read_line(&mut input).expect("Failed to read input");
+        let input = input.trim();
+
+        if input.chars().any(|c| c.is_control()) {
+            println!("Error: Control character/escape character detected!");
+            return error; // Return "bad_input" to indicate an error
+        }
+
+        let parts: Vec<&str> = input.split_whitespace().collect();  // Require exactly two name parts, containing letters only.
+
+        if parts.len() != 2 || !parts.iter().all(|part| {part.chars().all(|c| c.is_alphabetic())})
+            {
+                eprintln!("Error: Enter a first and last name using letters only.");
+                return String::from("bad_input");
+            }
+
+        // Return the validated name.
+        return input.to_string();
     }
 }
